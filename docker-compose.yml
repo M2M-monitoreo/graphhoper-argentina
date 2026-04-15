@@ -1,0 +1,47 @@
+services:
+  graphhopper:
+    image: tu-usuario/graphhopper-argentina:latest
+    # O usa la imagen pre-construida de Docker Hub una vez que la subas:
+    # image: tu-usuario/graphhopper-argentina:latest
+
+    container_name: graphhopper-argentina
+
+    ports:
+      - "8989:8989"
+
+    environment:
+      # Memoria JVM — ajustá según tu servidor
+      # Para un servidor con 4 GB RAM, podés subir a -Xmx3g
+      JAVA_OPTS: "-Xmx2g -Xms2g"
+
+    volumes:
+      # Persistimos los datos OSM y el grafo procesado
+      # Así no se re-descarga ni re-procesa en cada restart
+      - ./data:/data
+
+    # El contenedor reinicia solo si falla (no si lo detenés manualmente)
+    restart: unless-stopped
+
+    # Healthcheck: verifica que la API responda
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8989/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 300s   # Le damos 5 min para que procese el grafo de Argentina
+
+# ─────────────────────────────────────────────────────────────────────────────
+# MODOS DE USO:
+#
+# 1. Inicio rápido (descarga Argentina automáticamente):
+#    docker compose up
+#
+# 2. Pre-importar el grafo antes de levantar el server (recomendado para prod):
+#    docker compose run --rm graphhopper import
+#    docker compose up -d
+#
+# 3. Con un PBF local ya descargado:
+#    mkdir -p data
+#    wget https://download.geofabrik.de/south-america/argentina-latest.osm.pbf -O data/argentina-latest.osm.pbf
+#    docker compose up
+# ─────────────────────────────────────────────────────────────────────────────
