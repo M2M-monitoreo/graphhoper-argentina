@@ -1,0 +1,17 @@
+# Git metadata
+.git
+graphhopper/.git
+
+# Build outputs
+build/
+graphhopper/**/target/
+graphhopper/**/build/
+
+# IDE files
+*.iml
+.idea/
+.vscode/
+
+# Local junk
+*.hprof
+.DS_Store
