@@ -13,25 +13,23 @@ COPY graphhopper .
 RUN mvn clean package -DskipTests -pl web --also-make
 
 # ─────────────────────────────────────────────
-# Stage 2: Imagen final autosuficiente
+# Stage 2: Imagen final optimizada (sin PBF)
 # ─────────────────────────────────────────────
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:21-jre-alpine
 
 LABEL maintainer="tu-usuario"
-LABEL description="GraphHopper con datos OSM de Argentina"
+LABEL description="GraphHopper con datos OSM de Argentina pre-procesados"
 
 WORKDIR /usr/src/app
 
-# Copiamos el jar y archivos de configuración
+# Copiamos solo lo necesario: jar, config y el grafo ya procesado
 COPY --from=build /usr/src/graphhopper/web/target/graphhopper*.jar ./
 COPY --from=build /usr/src/graphhopper/config-example.yml ./
 COPY config.yml ./
 COPY graphhopper.sh ./
-COPY data /data
+COPY data/argentina-gh /data/argentina-gh
 
-RUN apt-get update \
-	&& apt-get install -y --no-install-recommends wget \
-	&& rm -rf /var/lib/apt/lists/* \
+RUN apk add --no-cache wget \
 	&& chmod +x graphhopper.sh
 
 # Puerto de la API REST de GraphHopper
