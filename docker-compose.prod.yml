@@ -1,0 +1,14 @@
+services:
+  graphhopper:
+    image: martingaidoo/graphhopper-argentina:latest
+    pull_policy: always
+    container_name: graphhopper-argentina
+    ports:
+      - "8989:8989"
+    environment:
+      JAVA_OPTS: "-Xms1g -Xmx2g"
+    mem_limit: 3g
+    memswap_limit: 3g
+    cpus: "2.0"
+    pids_limit: 512
+    restart: unless-stopped
